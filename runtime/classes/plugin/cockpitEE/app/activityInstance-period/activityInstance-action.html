@@ -1,0 +1,14 @@
+<div class="dropdown dropdown-time-period" >
+
+  <a class="dropdown-toggle" data-ng-class="{'disabled': !adjustablePeriod}">
+    Time Period: {{selectedMetricPeriod}}
+    <span id="selected"> </span>
+    <span class="caret"></span>
+  </a>
+
+  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+    <li class="activity-instance-period" ng-repeat="metricsPeriod in metricsPeriods">
+      <a ng-click="setHistoricActivityQuery(metricsPeriod)">{{metricsPeriod.label}}</a>
+    </li>
+  </ul>
+</div>

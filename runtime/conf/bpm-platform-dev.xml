@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpm-platform xmlns="http://www.camunda.org/schema/1.0/BpmPlatform"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.camunda.org/schema/1.0/BpmPlatform">
+
+    <job-executor>
+        <job-acquisition name="default"/>
+    </job-executor>
+
+    <process-engine name="default">
+        <job-acquisition>default</job-acquisition>
+        <configuration>org.camunda.bpm.engine.impl.cfg.StandaloneProcessEngineConfiguration</configuration>
+        <!--<datasource>java:jdbc/ProcessEngine</datasource>-->
+
+        <properties>
+            <property name="history">full</property>
+            <property name="databaseSchemaUpdate">true</property>
+            <property name="authorizationEnabled">true</property>
+            <property name="jobExecutorDeploymentAware">true</property>
+
+            <property name="jdbcDriver">com.mysql.jdbc.Driver</property>
+            <property name="jdbcUrl">jdbc:mysql://localhost:3306/hrm2?autoReconnect=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</property>
+            <property name="jdbcUsername">root</property>
+            <property name="jdbcPassword"></property>
+            <property name="databaseType">mysql</property>
+        </properties>
+
+        <plugins>
+            <plugin>
+                <class>org.camunda.bpm.application.impl.event.ProcessApplicationEventListenerPlugin</class>
+            </plugin>
+            <plugin>
+                <class>org.camunda.spin.plugin.impl.SpinProcessEnginePlugin</class>
+            </plugin>
+            <plugin>
+                <class>org.camunda.connect.plugin.impl.ConnectProcessEnginePlugin</class>
+            </plugin>
+            <plugin>
+            <class>com.taraan.bpm.engine.plugin.moqui.MoquiPlugin</class>
+        </plugin>
+            <plugin>
+            <class>com.taraan.bpm.identity.http.plugin.MoquiIdentityProviderPlugin</class>
+            <properties>
+                <property name="managerUser">john.doe</property>
+                <property name="managerPassword">moqui@fadaK20</property>
+            </properties>
+            </plugin>
+        </plugins>
+    </process-engine>
+</bpm-platform>

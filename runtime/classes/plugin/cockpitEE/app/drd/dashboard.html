@@ -1,0 +1,31 @@
+<section>
+  <div class="inner">
+    <header ng-if="drdsCount">
+      <h1 class="section-title">{{ (drdsCount > 1 ? 'PLGN_DRD_TABLE_TITLE_DEFINITIONS' : 'PLGN_DRD_TABLE_TITLE_DEFINITION' | translate:'{count: drdsCount}') }}</h1>
+    </header>
+
+    <header class="header-empty" ng-if="!drdsCount">
+      <h1 class="section-title">{{ 'PLGN_DRD_NO_DECISION_REQUIREMENTS' | translate }}</h1>
+    </header>
+
+    <table class="drd-definitions-list cam-table" ng-if="drdsCount">
+      <thead sortable-table-head
+             head-columns="headColumns"
+             on-sort-change="onSortChange(sortObj)"
+             default-sort="sortObj">
+      </thead>
+      <tbody>
+        <tr ng-repeat="drd in drds | orderBy:sortObj.sortBy:sortObj.sortReverse">
+          <td class="name">
+            <a href="#/decision-requirement/{{ drd.id }}">
+              {{ drd.name || drd.key }}
+            </a>
+          </td>
+          <td class="tenant-id">
+            {{ drd.tenantId }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

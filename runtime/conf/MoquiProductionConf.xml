@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- No copyright or license for configuration file, details here are not considered a creative work. -->
+
+<!-- NOTE: for default settings, examples, and comments see the MoquiDefaultConf.xml file at
+    https://github.com/moqui/moqui-framework/blob/master/framework/src/main/resources/MoquiDefaultConf.xml -->
+
+<moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-2.1.xsd">
+
+    <default-property name="webapp_allow_origins" value="*"/>   
+    <server-stats stats-skip-condition="pathInfo?.startsWith('/rpc') || pathInfo?.startsWith('/rest') || pathInfo?.startsWith('/status')"/>
+
+ 
+
+
+    <!--:START: Metabase dashboard config -->
+    <default-property name="metabase_host" value="localhost"/>
+    <default-property name="metabase_port" value="8082"/>
+    <!-- SSL implementation hasn't been done-->
+    <default-property name="metabase_ssl" value="false"/>
+    <default-property name="metabase_ssl_port" value="8083"/>
+    <default-property name="metabase_ssl_key" value="path/to/keystore.jks"/>
+    <default-property name="metabase_ssl_key_pass" value="storepass"/>
+    <default-property name="metabase_db_type" value="mysql"/>
+    <default-property name="metabase_db_host" value="127.0.0.1"/>
+    <default-property name="metabase_db_port" value="3306"/>
+    <default-property name="metabase_db_user" value="root"/>
+    <default-property name="metabase_db_pass" value=""/>
+    <default-property name="metabase_db_dbname" value="dashboard"/>
+    <!--:END: Metabase dashboard config -->
+
+
+    <!--:START: Login Page configs -->
+    <default-property name="enableCaptcha" value="false"/>
+    <default-property name="loginHelpUrl" value="/trnstatic/help.pdf"/>
+    <default-property name="signupUrl" value="/apps/signup"/>
+    <!--:END: Login Page configs -->
+
+
+    <!--:START: ldap config -->
+    <default-property name="ldapEnabled" value="false"/>
+    <default-property name="ldapCreateUserAccountOnLogin" value="false"/>
+    <!--
+        copy shiro.ini with appropriate config into runtime/classes
+        m-trn/template/shiroActiveDirectory.ini is a sample for active directory
+    -->
+    <!--:END: ldap config -->
+    <default-property name="server_version" value="1.0.6311"/>
+
+
+    <entity-facade crypt-pass="${entity_ds_crypt_pass}" query-stats="true">
+        <!-- add datasource elements here to configure databases 
+		 startup-add-missing="true" runtime-add-missing="true"
+		-->
+        <datasource group-name="transactional" database-conf-name="mysql" schema-name="" >
+            <inline-jdbc pool-maxsize="151" jdbc-uri="jdbc:mysql://localhost:3306/sajaya?autoReconnect=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8"
+                         jdbc-username="root" jdbc-password="password"/>
+        </datasource>
+    </entity-facade>
+
+</moqui-conf>

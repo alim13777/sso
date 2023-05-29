@@ -1,0 +1,62 @@
+<!-- # EE - src/main/resources-plugin/cockpit/drd/app/definition.html -->
+<div class="ctn-fixed-view decision-page-layout">
+  <div class="ctn-content-container"
+       ctn-collapsable-parent="sidebar">
+
+    <!-- tool bar -->
+    <!-- <div drd-def-toolbar="DrdInstance.definition"></div> -->
+
+    <!-- sidebar -->
+    <div class="ctn-column ctn-sidebar ctn-scroll"
+         ctn-collapsable="left">
+
+      <div drd-instance-sidebar="DrdInstance.instance"
+           definition="DrdInstance.definition">
+      </div>
+
+      <a class="hide-collapsable pull-right"></a>
+    </div>
+
+
+    <div class="ctn-column ctn-content"
+         ctn-collapsable-parent="tabs">
+
+      <!-- content top pane -->
+      <div class="ctn-row ctn-content-top"
+           ctn-collapsable="top">
+
+        <div drd-def-diagram="DrdInstance.definition"
+             instance="DrdInstance.instance"
+             overlay-provider-params="DrdInstance.overlayProviderParams"
+             enable-drd-navigation="false">
+        </div>
+
+        <a class="hide-collapsable vertical-collapse"
+           title="{{ 'PLGN_DRD_SHOW_TABS' | translate }}"></a>
+
+        <a class="maximize-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_DRD_MAXIMIZE_DIAGRAM' | translate }}"></a>
+
+        <a class="restore-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_DRD_HIDE_TABS' | translate }}"></a>
+      </div>
+
+      <!-- content bottom pane -->
+      <div class="ctn-row ctn-content-bottom ctn-tabbed">
+        <a class="show-collapsable vertical-collapse"
+           title=""></a>
+
+        <div drd-instance-tabs="DrdInstance.definition"
+             instance="DrdInstance.instance">
+        </div>
+      </div>
+
+      <a class="show-collapsable"></a>
+    </div>
+
+  </div>
+
+</div><!-- end .ctn-fixed-view -->
+<!-- / EE - src/main/resources-plugin/cockpit/drd/app/definition.html -->

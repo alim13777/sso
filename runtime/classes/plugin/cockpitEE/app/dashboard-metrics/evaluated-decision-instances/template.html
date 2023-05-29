@@ -1,0 +1,35 @@
+<div class="metrics-plugin">
+  <div class="col-xs-6"
+       ng-class="{'loading': loading}">
+    <div>{{ 'PLGN_MTRCS_EVALUATED' | translate }}<span class="legend-color" ng-style="{backgroundColor: colors[0]}"></span></div>
+    <span class="value">
+      {{ (!data.executedCurrent ? 0 : '')}}
+      {{ data.executedCurrent | abbreviateNumber }}
+    </span>
+    <span class="glyphicon"
+          tooltip="{{ 'PLGN_MTRCS_LAST' | translate:{ metricsPeriod: metricsPeriod, previous: data.executedPrevious } }}"
+          ng-class="executedHeat"></span>
+  </div>
+
+  <div class="metrics-plugin--chart col-xs-12">
+    <div cam-widget-chart-line
+         line-colors="colors"
+         interval="interval"
+         values="[data.chartExecuted]"
+         timespan="metricsPeriod"
+         on-selection="selectionChanged(info)"></div>
+  </div>
+
+  <div class="metrics-plugin--controls text-center text-sm col-xs-12">
+    <a class="text-padded"
+       ng-if="selectionInfo.start"
+       ng-href="#/decisions?searchQuery=%5B%7B%22type%22:%22evaluatedDate%22,%22operator%22:%22After%22,%22value%22:%22{{ encodeURIComponent(selectionInfo.start.format('YYYY-MM-DD[T]HH:mm:ss')) }}%22,%22name%22:%22%22%7D,%7B%22type%22:%22evaluatedDate%22,%22operator%22:%22Before%22,%22value%22:%22{{ encodeURIComponent(selectionInfo.end.format('YYYY-MM-DD[T]HH:mm:ss')) }}%22,%22name%22:%22%22%7D%5D">
+      <strong>{{ selectionInfo.start.format('YYYY-MM-DD HH:mm') }}</strong>{{ 'PLGN_MTRCS_TO' | translate }}<strong>{{ selectionInfo.end.format('YYYY-MM-DD HH:mm') }}</strong>
+    </a>
+
+    <span class="text-padded"
+          ng-if="!selectionInfo.start">
+      {{ 'PLGN_MTRCS_SELECT_RANGE' | translate }}
+    </span>
+  </div>
+</div>

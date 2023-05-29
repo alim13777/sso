@@ -1,0 +1,43 @@
+version: "3"
+services:
+  moqui-app:
+    image: moqui
+    container_name: moqui-app
+    command: conf=conf/MoquiProductionConf.xml
+    restart: unless-stopped
+#    links:
+#     - moqui-database
+    ports:
+     - 8080:8080
+    volumes:
+     - /fileRepo:/fileRepo
+     - ./runtime:/opt/moqui/runtime
+     - /etc/localtime:/etc/localtime
+    environment:
+     - instance_purpose=production
+     - entity_ds_db_conf=mysql
+     - entity_ds_host=moqui-database
+     - entity_ds_port=3306
+     - entity_ds_database=sajaya
+     - entity_ds_user=sajaya
+     - entity_ds_password=Sima@110
+     - entity_ds_crypt_pass='MoquiDefaultPassword:CHANGEME'
+     # moqui will accept traffic from other hosts but these are the values used for URL writing when specified:
+     - webapp_http_host=api.sajaya.mobintadbir.ir
+     - webapp_http_port=80
+     #- webapp_https_port=443
+     #- webapp_https_enabled=true
+     - default_locale=en_US
+     - default_time_zone=Asia/Tehran
+    networks:
+     - moqui
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "4"
+
+networks:
+  moqui:
+    name: moqui-network
+    external: true

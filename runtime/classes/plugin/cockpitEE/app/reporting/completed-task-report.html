@@ -1,0 +1,21 @@
+<!-- # EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/reporting/app/views/completed-task-report.html -->
+<div class="row">
+  <div class="col-xs-12 col-lg-4"
+       cam-completed-task-report-query
+       completed-task-report-data="reportData"
+       is-completion-time="isCompletionTime">
+  </div>
+
+  <div class="col-xs-12 col-lg-8"
+       cam-completed-task-duration-report-result
+       ng-if="isCompletionTime"
+       completed-task-report-data="reportData">
+  </div>
+
+  <div class="col-xs-12 col-lg-8"
+       ng-if="!isCompletionTime"
+       cam-completed-task-report-result
+       completed-task-report-data="reportData">
+  </div>
+</div>
+<!-- / EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/reporting/app/views/completed-task-report.html -->

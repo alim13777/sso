@@ -1,0 +1,78 @@
+<!-- # EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/cockpit/case/app/pages/instance/instance.html -->
+<div class="process-instance ctn-fixed-view">
+  <div class="ctn-content-container"
+       ctn-collapsable-parent="sidebar"
+       ctn-min-width=".nav-tabs li">
+
+    <!-- toolbar -->
+    <div class="ctn-toolbar">
+
+      <!-- Toolbar actions are provided by plugins -->
+      <div cam-action-plugins
+           instance="caseInstance"
+           definition="caseDefinition"
+           diagram="diagramInteraction.control"
+           component="cockpit.caseInstance.action">
+      </div>
+
+    </div>
+
+    <!-- sidebar -->
+    <div class="ctn-column ctn-sidebar ctn-scroll"
+         ctn-collapsable="left">
+
+      <div cam-instance-details
+           definition="caseDefinition"
+           instance="caseInstance">
+      </div>
+
+      <a class="hide-collapsable pull-right"></a>
+    </div>
+
+    <div class="ctn-column ctn-content"
+         ctn-collapsable-parent="tabs">
+
+      <!-- content top pane -->
+      <div class="ctn-row ctn-content-top"
+           ctn-collapsable="top">
+        <div cam-case-diagram
+             diagram-overlay-component="cockpit.caseInstance.diagram.overlay"
+             definition="caseDefinition"
+             instance="caseInstance"
+             selection="diagramInteraction.selection"
+             control="diagramInteraction.control"
+             on-diagram-load="onDiagramLoad()">
+        </div>
+        <a class="hide-collapsable vertical-collapse"
+           title="{{ 'PLGN_CS_SHOW_TABS' | translate }}"></a>
+
+        <a class="maximize-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_CS_MAXIMIZE_DIAGRAM' | translate }}"></a>
+
+        <a class="restore-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_CS_RESTORE_DIAGRAM_SIZE' | translate }}"></a>
+      </div>
+
+      <!-- content bottom pane -->
+      <div class="ctn-row ctn-content-bottom ctn-tabbed">
+        <a class="show-collapsable vertical-collapse"
+           title="{{ 'PLGN_CS_HIDE_TABS' | translate }}"></a>
+
+        <div cam-tab-plugins
+             instance="caseInstance"
+             definition="caseDefinition"
+             diagram="diagramInteraction.control"
+             component="cockpit.caseInstance.tab"
+             keep-search-values="keepSearchValues">
+        </div>
+
+      </div>
+
+      <a class="show-collapsable"></a>
+    </div>
+  </div>
+
+</div><!-- end .ctn-fixed-view -->
+<!-- / EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/cockpit/case/app/pages/instance/instance.html -->

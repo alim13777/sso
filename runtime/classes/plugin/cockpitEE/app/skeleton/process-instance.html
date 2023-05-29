@@ -1,0 +1,264 @@
+<!-- # EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/skeleton/app/cockpit/pages/process-instance.html -->
+<div class="process-instance ctn-fixed-view">
+  <div class="ctn-content-container"
+       ctn-collapsable-parent="sidebar">
+
+    <!-- toolbar -->
+    <div class="ctn-toolbar">
+
+      <!-- Toolbar actions are provided by plugins -->
+      <span ng-repeat="tabProvider in processInstanceActions">
+        <view provider="tabProvider"
+              vars="processInstanceVars" />
+      </span>
+
+    </div>
+
+    <!-- sidebar -->
+    <div class="ctn-column ctn-sidebar ctn-scroll"
+         ctn-collapsable="left"
+         ng-controller="HistoryProcessInstanceFilterController">
+      <ul class="nav nav-tabs">
+        <li ng-class="{active: sidebarTab === 'info'}">
+          <a ng-click="sidebarTab = 'info'">{{ 'PLGN_SKE_INFORMATION' | translate }}</a>
+        </li>
+        <li ng-class="{active: sidebarTab === 'filters'}">
+          <a ng-click="sidebarTab = 'filters'">{{ 'PLGN_SKE_FILTER' | translate }}</a>
+        </li>
+      </ul>
+
+      <div class="tab-content"
+           ng-if="sidebarTab === 'info'">
+        <dl class="process-information">
+          <dt cam-widget-clipboard="processInstance.id"
+              ng-class="{hovered: hovered === 'instance-id'}">
+            <span tooltip="{{ 'PLGN_SKE_PROCESS_INSTANCE_ID' | translate }}">{{ 'PLGN_SKE_INSTANCE_ID' | translate }}</span>
+          </dt>
+          <dd class="instance-id"
+              ng-mouseenter="hoverTitle('instance-id')"
+              ng-mouseleave="hoverTitle()">{{ processInstance.id }}</dd>
+
+          <dt ng-if="processInstance.businessKey"
+              cam-widget-clipboard="processInstance.businessKey"
+              ng-class="{hovered: hovered === 'business-key'}">
+            <span tooltip="{{ 'PLGN_SKE_BUSINESS_KEY_OF_PI' | translate }}">{{ 'PLGN_SKE_BUSINESS_KEY' | translate }}</span>
+          </dt>
+          <dd ng-if="processInstance.businessKey"
+              class="business-key"
+              ng-mouseenter="hoverTitle('business-key')"
+              ng-mouseleave="hoverTitle()">{{ processInstance.businessKey }}</dd>
+          <dt ng-if="!processInstance.businessKey">
+            <span tooltip="{{ 'PLGN_SKE_BUSINESS_KEY_OF_PI' | translate }}">{{ 'PLGN_SKE_BUSINESS_KEY' | translate }}</span>
+          </dt>
+          <dd ng-if="!processInstance.businessKey"
+              class="business-key"><span class="null-value">{{ 'PLGN_SKE_NULL' | translate }}</span></dd>
+
+          <dt>{{ 'PLGN_SKE_DEFINITION_VERSION' | translate }}</dt>
+          <dd class="definition-version">{{ processDefinition.version }}</dd>
+
+          <dt cam-widget-clipboard="processDefinition.id"
+              ng-class="{hovered: hovered === 'definition-id'}">{{ 'PLGN_SKE_DEFINITION_ID' | translate }}</dt>
+          <dd class="definition-id"
+              ng-mouseenter="hoverTitle('definition-id')"
+              ng-mouseleave="hoverTitle()">
+            <a ng-href="#/process-definition/{{ processDefinition.id }}/history">{{ processDefinition.id }}</a>
+          </dd>
+
+          <dt cam-widget-clipboard="processDefinition.key"
+              ng-class="{hovered: hovered === 'definition-key'}">{{ 'PLGN_SKE_DEFINITION_KEY' | translate }}</dt>
+          <dd class="definition-key"
+              ng-mouseenter="hoverTitle('definition-key')"
+              ng-mouseleave="hoverTitle()">{{ processDefinition.key }}</dd>
+
+          <dt>{{ 'PLGN_SKE_DEFINITION_NAME' | translate }}</dt>
+          <dd class="definition-name">{{ processDefinition.name }}</dd>
+
+          <dt ng-if="processInstance.tenantId"
+              cam-widget-clipboard="processInstance.tenantId"
+              ng-class="{hovered: hovered === 'tenant-id'}">{{ 'PLGN_SKE_TENANT_ID' | translate }}</dt>
+          <dd class="tenant-id"
+              ng-if="processInstance.tenantId"
+              ng-mouseenter="hoverTitle('tenant-id')"
+              ng-mouseleave="hoverTitle()">{{ processInstance.tenantId }}</dd>
+          <dt ng-if="!processInstance.tenantId">{{ 'PLGN_SKE_TENANT_ID' | translate }}</dt>
+          <dd class="tenant-id"
+              ng-if="!processInstance.tenantId"><span class="null-value">{{ 'PLGN_SKE_NULL' | translate }}</span></dd>
+
+          <dt cam-widget-clipboard="processDefinition.deploymentId"
+              ng-class="{hovered: hovered === 'deployment-key'}">{{ 'PLGN_SKE_DEPLOYMENT_ID' | translate }}</dt>
+          <dd class="deployment-id"
+              ng-mouseenter="hoverTitle('deployment-key')"
+              ng-mouseleave="hoverTitle()">
+            <a ng-href="{{ getDeploymentUrl() }}">{{ processDefinition.deploymentId }}</a>
+          </dd>
+
+          <dt ng-if="processInstance.superProcessInstanceId"
+              cam-widget-clipboard="processInstance.superProcessInstanceId"
+              ng-class="{hovered: hovered === 'super-process-instance-id'}">{{ 'PLGN_SKE_SUPER_PROCESS_INSTANCE_ID' | translate }}</dt>
+          <dd class="super-process-instance-id"
+              ng-if="processInstance.superProcessInstanceId"
+              ng-mouseenter="hoverTitle('super-process-instance-id')"
+              ng-mouseleave="hoverTitle()">
+            <a ng-href="#/process-instance/{{processInstance.superProcessInstanceId}}/history">{{ processInstance.superProcessInstanceId }}</a>
+          </dd>
+          <dt ng-if="!processInstance.superProcessInstanceId">{{ 'PLGN_SKE_SUPER_PROCESS_INSTANCE_ID' | translate }}</dt>
+          <dd class="super-process-instance-id"
+              ng-if="!processInstance.superProcessInstanceId">
+            <span class="null-value">{{ 'PLGN_SKE_NULL' | translate }}</span>
+          </dd>
+
+          <dt ng-if="processInstance.superCaseInstanceId"
+              cam-widget-clipboard="processInstance.superCaseInstanceId"
+              ng-class="{hovered: hovered === 'super-case-instance-id'}">{{ 'PLGN_SKE_SUPER_CASE_INSTANCE_ID' | translate }}</dt>
+          <dd class="super-case-instance-id"
+              ng-if="processInstance.superCaseInstanceId"
+              ng-mouseenter="hoverTitle('super-case-instance-id')"
+              ng-mouseleave="hoverTitle()">
+            <a ng-href="#/case-instance/{{processInstance.superCaseInstanceId}}">{{ processInstance.superCaseInstanceId }}</a>
+          </dd>
+          <dt ng-if="!processInstance.superCaseInstanceId">{{ 'PLGN_SKE_SUPER_CASE_INSTANCE_ID' | translate }}</dt>
+          <dd class="super-case-instance-id"
+              ng-if="!processInstance.superCaseInstanceId">
+            <span class="null-value">{{ 'PLGN_SKE_NULL' | translate }}</span>
+          </dd>
+
+
+          <dt ng-class="{hovered: hovered === 'start-time'}"
+              cam-widget-clipboard="processInstance.startTime">{{ 'PLGN_SKE_START_TIME' | translate }}</dt>
+          <dd class="start-time"
+              ng-mouseenter="hoverTitle('start-time')"
+              ng-mouseleave="hoverTitle()">{{ processInstance.startTime | camDate }}</dd>
+
+          <dt ng-if="processInstance.endTime"
+              ng-class="{hovered: hovered === 'end-time'}"
+              cam-widget-clipboard="processInstance.endTime">{{ 'PLGN_SKE_END_TIME' | translate }}</dt>
+          <dd class="end-time"
+              ng-if="processInstance.endTime"
+              ng-mouseenter="hoverTitle('end-time')"
+              ng-mouseleave="hoverTitle()">{{ processInstance.endTime | camDate }}</dd>
+          <dt ng-if="!processInstance.endTime"
+              ng-class="{hovered: hovered === 'end-time'}">{{ 'PLGN_SKE_END_TIME' | translate }}</dt>
+          <dd class="end-time"
+              ng-if="!processInstance.endTime">
+              <span class="null-value">{{ 'PLGN_SKE_NULL' | translate }}</span>
+          </dd>
+
+          <dt>{{ 'PLGN_SKE_RELATED' | translate }}</dt>
+          <dd>
+            <ul>
+              <li>
+                <a ng-href="#/migration?searchQuery=%5B%5D&sourceKey={{ processDefinition.key }}">{{ 'PLGN_SKE_MIGRATION' | translate }}</a>
+              </li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+
+      <div class="tab-content filters"
+           ng-if="sidebarTab === 'filters'">
+        <h5>
+          {{ 'PLGN_SKE_FILTER' | translate }}
+
+          <button class="btn btn-sm btn-link btn-control btn-control-link"
+                  tooltip="{{ 'PLGN_SKE_ACTIVITY_INSTANCE_TREE' | translate }}">
+            <span class="glyphicon glyphicon-question-sign"></span>
+          </button>
+        </h5>
+
+        <div class="filter"
+             ng-show="activityInstanceCount > activityInstanceLimit">
+          <div class="alert alert-info">
+            {{ 'PLGN_SKE_PROCESS_INSTANCE_CONTAINS' | translate }}
+          </div>
+        </div>
+
+        <div cam-quick-filter
+             state-filter
+             name-filter
+             holder-selector=".instance-tree"
+             label-selector=".tree-node-group"
+             item-selector=".tree-node-group">
+        </div>
+
+        <div class="filter">
+
+          <button class="btn btn-link btn-xs btn-control"
+                  ng-show="filterData.activityInstanceCount"
+                  ng-click="clearSelection()">
+            <span class="glyphicon glyphicon-remove"></span>
+          </button>
+
+          <ng-pluralize count="filterData.activityInstanceCount"
+                        when="getDataWhen()">
+          </ng-pluralize>
+
+          {{ 'PLGN_SKE_SELECTED' | translate }}
+        </div>
+
+
+        <div class="filter instance-tree">
+          <div activity-instance-tree="activityInstanceTree"
+               selection="filter"
+               on-element-click="handleActivityInstanceSelection(id, activityId, $event)">
+          </div>
+        </div>
+      </div>
+
+      <a class="hide-collapsable pull-right"></a>
+    </div>
+
+    <div class="ctn-column ctn-content"
+         ctn-collapsable-parent="tabs">
+
+      <!-- content top pane -->
+      <div class="ctn-row ctn-content-top"
+           is-sidebar-collapsed="onDiagramCollapseChange(collapsed)"
+           ctn-collapsable="top">
+        <div process-diagram="processDiagram"
+             key="{{processInstance.processDefinitionId}}"
+             on-element-click="handleBpmnElementSelection(id, $event)"
+             selection="filter"
+             process-data="processData"
+             collapsed="diagramCollapsed"
+             diagram-provider-component="cockpit.processInstance.history.diagram.plugin"
+             overlay-provider-component="cockpit.processInstance.history.diagram.overlay"></div>
+        <a class="hide-collapsable vertical-collapse"
+           title="{{ 'PLGN_SKE_SHOW_TABS' | translate }}"></a>
+
+        <a class="maximize-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_SKE_MAXIMIZE' | translate }}"></a>
+
+        <a class="restore-collapsable vertical-collapse"
+           maximize-parent-direction="left"
+           title="{{ 'PLGN_SKE_RESTORE' | translate }}"></a>
+      </div>
+
+      <!-- content bottom pane -->
+      <div class="ctn-row ctn-content-bottom ctn-tabbed">
+        <a class="show-collapsable vertical-collapse"
+           title="{{ 'PLGN_SKE_HIDE_TABS' | translate }}"></a>
+        <div ng-show="processInstanceTabs.length">
+          <ul class="nav nav-tabs">
+            <li ng-class="{ active: selectedTab == tabProvider }"
+                ng-repeat="tabProvider in processInstanceTabs">
+              <a href
+                 ng-click="selectTab(tabProvider)">
+                {{ tabProvider.label | translate }}
+              </a>
+            </li>
+          </ul>
+
+          <div class="ctn-tabbed-content ctn-scroll">
+            <view provider="selectedTab"
+                  vars="processInstanceVars" />
+          </div>
+        </div>
+      </div>
+
+      <a class="show-collapsable"></a>
+    </div>
+  </div>
+
+</div><!-- end .ctn-fixed-view -->
+<!-- / EE - camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/skeleton/app/cockpit/pages/process-instance.html -->

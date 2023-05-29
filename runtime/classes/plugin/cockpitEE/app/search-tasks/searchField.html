@@ -1,0 +1,152 @@
+<!-- EE # camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/search-tasks/app/views/searchField.html -->
+<section>
+  <div class="inner">
+    <header>
+      <h1 class="section-title">{{ 'PLGN_SETA' | translate }}</h1>
+    </header>
+
+    <div cam-searchable-area
+         config="searchConfig"
+         on-search-change="onSearchChange(query, pages)"
+         array-types="['activityInstanceIdIn', 'tenantIdIn', 'taskDefinitionKeyIn']"
+         variable-types="['processVariables', 'taskVariables']"
+         loading-state="loadingState"
+         text-empty="{{ 'PLGN_SETA_NOT_FOUND' | translate }}"
+         storage-group="'HT'">
+
+      <table ng-if="tasks.length"
+             class="search-results cam-table">
+        <thead>
+          <tr>
+            <th class="task uuid">{{ 'PLGN_SETA_TASK_ID' | translate }}</th>
+
+            <th class="task-name">
+              {{ 'PLGN_SETA_TASK_NAME' | translate }}
+              <a ng-click="changeOrder('taskName')">
+                <span class="glyphicon"
+                      ng-class="orderClass('taskName')"></span>
+              </a>
+            </th>
+
+            <th class="start-time">
+              {{ 'PLGN_SETA_START_TIME' | translate }}
+              <a ng-click="changeOrder('startTime')">
+                <span class="glyphicon"
+                      ng-class="orderClass('startTime')"></span>
+              </a>
+            </th>
+
+            <th class="end-time">
+              {{ 'PLGN_SETA_END_TIME' | translate }}
+              <a ng-click="changeOrder('endTime')">
+                <span class="glyphicon"
+                      ng-class="orderClass('endTime')"></span>
+              </a>
+            </th>
+
+            <th class="instance-id">{{ 'PLGN_SETA_INSTANCE_ID' | translate }}</th>
+
+            <th class="definition-id">{{ 'PLGN_SETA_DEFINITION_KEY' | translate }}</th>
+
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr ng-repeat="(index, task) in tasks">
+
+            <td class="task uuid"
+                cam-widget-clipboard="task.id">
+              <a class="instance-link"
+                 ng-if="task.processInstanceId"
+                 ng-href="#/process-instance/{{ task.processInstanceId }}/{{ checkEndTime(task.endTime) }}?detailsTab=user-tasks-tab"
+                 title="{{ task.id }}">
+                {{ task.id }}
+              </a>
+
+              <a class="instance-link"
+                 ng-if="task.caseInstanceId && !task.processInstanceId && !isStandaloneTask(task)"
+                 ng-href="#/case-instance/{{ task.caseInstanceId }}?detailsTab=user-tasks"
+                 title="{{ task.id }}">
+                {{ task.id }}
+              </a>
+
+              <span ng-if="isStandaloneTask(task)">
+                {{ task.id }}
+              </span>
+            </td>
+
+            <td class="task-name"
+                ng-if="task.name"
+                cam-widget-clipboard="task.name">
+              {{ task.name }}
+            </td>
+            <td class="task-name"
+                ng-if="!task.name">
+            </td>
+
+            <td class="start-time"
+                cam-widget-clipboard="task.startTime">
+              {{ task.startTime | camDate }}
+            </td>
+
+            <td class="end-time"
+                ng-if="task.endTime"
+                cam-widget-clipboard="task.endTime">
+              {{ task.endTime | camDate }}
+            </td>
+            <td class="end-time"
+                ng-if="!task.endTime">
+            </td>
+
+            <td class="instance-id"
+                ng-if="task.processInstanceId"
+                cam-widget-clipboard="task.processInstanceId">
+              <a class="instance-link"
+                 ng-href="#/process-instance/{{ task.processInstanceId }}/{{ checkEndTime(task.endTime) }}"
+                 title="{{ task.processInstanceId }}">
+                {{ task.processInstanceId }}
+              </a>
+            </td>
+            <td class="instance-id"
+                ng-if="task.caseInstanceId && !task.processInstanceId && !isStandaloneTask(task)"
+                cam-widget-clipboard="task.caseInstanceId">
+              <a class="instance-link"
+                 ng-href="#/case-instance/{{ task.caseInstanceId }}"
+                 title="{{ task.caseInstanceId }}">
+                {{ task.caseInstanceId }}
+              </a>
+            </td>
+            <td class="instance-id"
+                ng-if="isStandaloneTask(task)">
+            </td>
+
+            <td class="definition-key"
+                ng-if="task.processDefinitionKey"
+                cam-widget-clipboard="task.processDefinitionKey">
+              <a class="definition-link"
+                 ng-href="#/process-definition/{{ task.processDefinitionId }}/{{ checkEndTime(task.endTime) }}"
+                 title="{{ task.processDefinitionKey }}">
+                {{ task.processDefinitionKey }}
+              </a>
+            </td>
+            <td class="definition-key"
+                ng-if="task.caseDefinitionKey"
+                cam-widget-clipboard="task.caseDefinitionKey">
+              <a class="definition-link"
+                 ng-href="#/case-definition/{{ task.caseDefinitionId }}"
+                 title="{{ task.caseDefinitionKey }}">
+                {{ task.caseDefinitionKey }}
+              </a>
+            </td>
+            <td class="definition-key"
+                ng-if="isStandaloneTask(task)">
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- EE / camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/search-tasks/app/views/searchField.html -->

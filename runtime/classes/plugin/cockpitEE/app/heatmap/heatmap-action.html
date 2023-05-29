@@ -1,0 +1,11 @@
+<a
+  class="heatmaplink"
+  ng-click="toggleHeatmap()"
+  ng-disabled="isLoading"
+  tooltip="Toggle Heatmap"
+  tooltip-placement="bottom">
+  Heatmap:
+  <span ng-if="hasHeatmap() && !isLoading">on <input type="radio" checked="" class="toggle" ></span>
+  <span ng-if="!hasHeatmap() && !isLoading">off <input type="radio" class="toggle"> </span>
+  <span ng-if="isLoading">loading...</span>
+</a>

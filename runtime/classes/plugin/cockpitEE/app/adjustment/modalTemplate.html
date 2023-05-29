@@ -1,0 +1,52 @@
+<!-- EE # webapps/camunda-webapp/plugins/src/main/resources-plugin/adjustment/app/actions/modalTemplate.html -->
+<div class="modal-header row">
+  <div class="col-xs-4">
+    <h3 class="modal-title">{{ 'PLGN_ADJ_EDIT_DMN' | translate }}</h3>
+  </div>
+
+  <div class="col-xs-8 text-right"
+       ng-if="uploadSupport">
+    <div class="form-control-static">
+      {{ 'PLGN_ADJ_USE_DMN_FILE' | translate }}
+      <input type="file" cam-file="fileInputChange(files)" />
+    </div>
+  </div>
+</div>
+
+<div class="modal-body">
+
+  <div notifications-panel
+       class="notifications-panel"></div>
+  <div cam-widget-dmn-viewer
+       edit-mode="true"
+       show-details="true"
+       enable-drd-navigation="true"
+       control="control"
+       xml="dmnXml"
+       ng-show="!hideTable">
+  </div>
+  <div ng-show="hideTable">
+    {{ 'PLGN_ADJ_LOADING_DMN' | translate }}<br />
+    <span class="glyphicon glyphicon-refresh animate-spin"></span>
+  </div>
+</div><!-- .modal-body -->
+
+
+<div class="modal-footer row">
+  <div class="col-xs-6 download-state text-left">
+    <button ng-click="downloadXML()"
+            ng-if="downloadSupport"
+            class="btn btn-default"
+            title="download changed version">
+      <span class="glyphicon glyphicon-save"></span> {{ 'PLGN_ADJ_DOWNLOAD_CHANGED_VERSION' | translate }}
+    </button>
+  </div>
+  <div class="col-xs-6 text-right">
+    <button class="btn btn-link"
+            ng-click="cancel()">{{ 'PLGN_ADJ_CANCEL' | translate }}</button>
+
+    <button class="btn btn-primary"
+            ng-click="ok()">{{ 'PLGN_ADJ_PROCEED' | translate }}</button>
+  </div>
+</div>
+<!-- EE / webapps/camunda-webapp/plugins/src/main/resources-plugin/adjustment/app/actions/modalTemplate.html -->

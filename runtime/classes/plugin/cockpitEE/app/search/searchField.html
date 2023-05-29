@@ -1,0 +1,262 @@
+<section id="search-section">
+  <!-- EE # camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/cockpit/search/app/views/searchField.html -->
+  <div class="inner" ng-controller="CamPaginationSearchIntegrationController as Searchable">
+    <header>
+      <h1 class="section-title">{{ 'PLGN_SEAR' | translate }}</h1>
+    </header>
+
+
+    <div class="row">
+      <div class="col-xs-8 col-md-10"
+           cam-widget-search
+           cam-widget-search-total="Searchable.pages.total"
+           cam-widget-search-valid-searches="Searchable.config.searches"
+           cam-widget-search-translations="Searchable.config.tooltips"
+           cam-widget-search-types="Searchable.config.types"
+           cam-widget-search-operators="Searchable.config.operators"
+           cam-widget-search-mode="search">
+      </div>
+
+      <div class="col-xs-4 col-md-2 text-right">
+        <button class="btn btn-primary ng-scope open-batch"
+                ng-disabled="isBatchDisabled"
+                ng-click="openBatch()"
+                tooltip="{{ 'PLGN_SEAR_BATCH' | translate }}"
+                tooltip-placement="top">
+          {{ 'PLGN_SEAR_BATCH_EXEC' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div cam-widget-loader
+         loading-state="{{Searchable.loadingState}}"
+         text-empty="{{ 'PLGN_SEAR_NO_MATCH' | translate }}">
+      <div class="row">
+        <div class="controls-container col-xs-4 col-xs-offset-8 col-md-2 col-md-offset-10 text-right">
+          <div ng-if="getMode() && (processInstances.length || incidents.length)"
+               class="search-results-sorting dropdown">
+            <button class="btn btn-default dropdown-toggle"
+                    ng-disabled="!availableColumns.length">
+              {{ 'PLGN_SEAR_ADD_COLUMN' | translate }}
+              <span class="glyphicon glyphicon-plus-sign"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li ng-repeat="column in availableColumns"
+                  ng-class="column">
+                <a ng-click="addColumn(column, getMode())">{{ columnLabel(column, getMode()) }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <table ng-if="processInstances.length"
+             class="search-results cam-table">
+        <thead>
+        <tr>
+          <th class="process-instance uuid">
+            <span class="column-label">{{ 'PLGN_SEAR_PROCINST_ID' | translate }}</span>
+          </th>
+          <th class="start-time">
+            <span class="column-label">{{ 'PLGN_SEAR_START_TIME' | translate }}</span>
+            <a ng-click="changeOrder('startTime', 'PI')">
+            <span class="glyphicon"
+                  ng-class="orderClass('startTime')"></span>
+            </a>
+          </th>
+          <th class="end-time">
+            <span class="column-label">{{ 'PLGN_SEAR_END_TIME' | translate }}</span>
+            <a ng-click="changeOrder('endTime', 'PI')">
+            <span class="glyphicon"
+                  ng-class="orderClass('endTime')"></span>
+            </a>
+          </th>
+          <th class="definition-key">
+            <span class="column-label">{{ 'PLGN_SEAR_DEFINITION_ID' | translate }}</span>
+            <a ng-click="changeOrder('processDefinitionId', 'PI')">
+            <span class="glyphicon"
+                  ng-class="orderClass('processDefinitionId')"></span>
+            </a>
+          </th>
+          <th class="business-key">
+            <span class="column-label">{{ 'PLGN_SEAR_BUSINESS_KEY' | translate }}</span>
+            <a ng-click="changeOrder('businessKey', 'PI')">
+            <span class="glyphicon"
+                  ng-class="orderClass('businessKey')"></span>
+            </a>
+          </th>
+
+          <th ng-repeat="column in shownColumns"
+              ng-class="column">
+            <a ng-click="removeColumn(column, 'PI')">
+              <span class="glyphicon glyphicon-remove-sign"></span>
+            </a>
+
+            <span class="column-label">{{ columnLabel(column, 'PI') }}</span>
+
+            <a ng-if="isSortableColumn(column, 'PI')"
+               ng-click="changeOrder(column, 'PI')">
+            <span class="glyphicon"
+                  ng-class="orderClass(column)"></span>
+            </a>
+          </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="(index, processInstance) in processInstances">
+          <td class="process-instance uuid"
+              cam-widget-clipboard="processInstance.id">
+            <a href="#/process-instance/{{ processInstance.id }}/history"
+               title="{{ processInstance.id }}">
+              {{ processInstance.id }}
+            </a>
+          </td>
+
+          <td class="start-time"
+              cam-widget-clipboard="processInstance.startTime">
+            {{ processInstance.startTime | camDate }}
+          </td>
+
+          <td class="end-time"
+              ng-if="processInstance.endTime"
+              cam-widget-clipboard="processInstance.endTime">
+            {{ processInstance.endTime | camDate }}
+          </td>
+
+          <td class="end-time"
+              ng-if="!processInstance.endTime">
+          </td>
+
+          <td class="definitionId"
+              cam-widget-clipboard="processInstance.processDefinitionId">
+            <span ng-bind-html="columnValue('processDefinitionId', index, 'PI')"></span>
+          </td>
+
+          <td class="business-key"
+              ng-if="processInstance.businessKey"
+              cam-widget-clipboard="processInstance.businessKey">
+            {{ processInstance.businessKey }}
+          </td>
+
+          <td class="business-key"
+              ng-if="!processInstance.businessKey">
+          </td>
+
+          <td ng-repeat="column in shownColumns"
+              ng-class="column"
+              ng-init="val = columnValue(column, index, 'PI')">
+            <div ng-if="val"
+                 cam-widget-clipboard="columnRawValue(column, index, 'PI')">
+              <span ng-bind-html="val"></span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table ng-if="incidents.length"
+             class="search-results cam-table">
+        <thead>
+        <tr>
+          <th class="incident uuid">{{ 'PLGN_SEAR_INCIDENT_ID' | translate }}</th>
+          <th class="incident-type">
+            Type
+            <a ng-click="changeOrder('incidentType', 'IN')">
+            <span class="glyphicon"
+                  ng-class="orderClass('incidentType')"></span>
+            </a>
+          </th>
+          <th class="incident-time">
+            Time
+            <a ng-click="changeOrder('incidentTimestamp', 'IN')">
+            <span class="glyphicon"
+                  ng-class="orderClass('incidentTimestamp')"></span>
+            </a>
+          </th>
+          <th class="incident-definition">
+            {{ 'PLGN_SEAR_DEFINTION_ID' | translate }}
+            <a ng-click="changeOrder('processDefinitionId', 'IN')">
+            <span class="glyphicon"
+                  ng-class="orderClass('processDefinitionId')"></span>
+            </a>
+          </th>
+          <th class="incident-message">
+            {{ 'PLGN_SEAR_MESSAGE' | translate }}
+          </th>
+          <th ng-repeat="column in shownColumns"
+              ng-class="column">
+            <a ng-click="removeColumn(column, 'IN')">
+              <span class="glyphicon glyphicon-remove-sign"></span>
+            </a>
+
+            {{ columnLabel(column, 'IN') }}
+
+            <a ng-if="isSortableColumn(column, 'IN')"
+               ng-click="changeOrder(column, 'IN')">
+            <span class="glyphicon"
+                  ng-class="orderClass(column)"></span>
+            </a>
+          </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="(index, incident) in incidents">
+          <td class="incident uuid"
+              cam-widget-clipboard="incident.id">
+            <a href="#/process-instance/{{ incident.processInstanceId }}/runtime?detailsTab=incidents-tab&amp;activityIds={{ incident.activityId }}"
+               title="{{ incident.id }}">
+              {{ incident.id }}
+            </a>
+          </td>
+
+          <td class="incident-type"
+              cam-widget-clipboard="incident.incidentType">
+            {{ incident.incidentType }}
+          </td>
+
+          <td class="incident-time"
+              cam-widget-clipboard="incident.incidentTimestamp">
+            {{ incident.incidentTimestamp | camDate }}
+          </td>
+
+          <td class="definitionId"
+              cam-widget-clipboard="incident.processDefinitionId">
+            <span ng-bind-html="columnValue('processDefinitionId', index, 'IN')"></span>
+          </td>
+
+          <td class="incident-message"
+              cam-widget-clipboard="incident.incidentMessage">
+            {{ incident.incidentMessage }}
+          </td>
+
+
+          <td ng-repeat="column in shownColumns"
+              ng-class="column"
+              ng-init="val = columnValue(column, index, 'IN')">
+            <div ng-if="val"
+                 cam-widget-clipboard="columnRawValue(column, index, 'IN')">
+              <span ng-bind-html="val"></span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <pagination ng-if="(processInstances.length || incidents.length) && Searchable.pages.total > Searchable.pages.size"
+                  class="pagination-sm"
+
+                  page="Searchable.pages.current"
+                  ng-model="Searchable.pages.current"
+
+                  total-items="Searchable.pages.total"
+                  items-per-page="Searchable.pages.size"
+
+                  max-size="7"
+                  boundary-links="true"></pagination>
+    </div>
+  </div>
+    <!-- EE / camunda-bpm-platform-ee/webapps/camunda-webapp/plugins/src/main/resources-plugin/cockpit/search/app/views/searchField.html -->
+</section>

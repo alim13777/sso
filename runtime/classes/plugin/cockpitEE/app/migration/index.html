@@ -1,0 +1,416 @@
+<div class="container-fluid migration-page"
+     ng-class="'page-' + ctrl.pageContentId + '-active'"
+     ng-controller="migrationCtrl">
+  <div class="page-flow-nav">
+    <ul>
+      <li ng-class="{active: ctrl.getPageContentId() === 'mapping', done: ['instances', 'confirm', 'progress'].indexOf(ctrl.getPageContentId()) > -1}">
+        <a ng-click="ctrl.activateTab('mapping')"
+           href>{{ 'PLGN_MIG_DEFINE_MAPPING' | translate }}</a>
+      </li>
+
+      <li ng-class="{disabled: !ctrl.hasValidPlan, active: ctrl.getPageContentId() === 'instances', done: ['confirm', 'progress'].indexOf(ctrl.getPageContentId()) > -1}">
+        <a ng-if="ctrl.hasValidPlan"
+           ng-click="ctrl.activateTab('instances')"
+           href>{{ 'PLGN_MIG_SELECT_INSTANCES_STEP' | translate }}</a>
+        <a ng-if="!ctrl.hasValidPlan"
+           href>{{ 'PLGN_MIG_SELECT_INSTANCES_STEP' | translate }}</a>
+      </li>
+
+      <li ng-class="{disabled: !ctrl.hasValidPlan || (instancesCtrl.delegate.selectedInstances.length === 0 && instancesCtrl.delegate.instancesCount === 0), active: ctrl.getPageContentId() === 'confirm', done: ctrl.getPageContentId() === 'progress'}">
+        <a ng-if="ctrl.hasValidPlan && (instancesCtrl.delegate.selectedInstances.length > 0 || instancesCtrl.delegate.instancesCount > 0)"
+           ng-click="ctrl.activateTab('confirm')"
+           href>{{ 'PLGN_MIG_CONFIRM' | translate }}</a>
+        <a ng-if="!ctrl.hasValidPlan || (instancesCtrl.delegate.selectedInstances.length === 0 && instancesCtrl.delegate.instancesCount === 0)"
+           href>{{ 'PLGN_MIG_CONFIRM' | translate }}</a>
+      </li>
+
+      <li ng-class="{active: ctrl.getPageContentId() === 'progress'}"
+          class="disabled">
+        <a href>{{ 'PLGN_MIG_RESULTS' | translate }}</a>
+      </li>
+    </ul>
+  </div>
+
+
+  <!-- using ng-show so that a loaded diagram does not have to be re-loaded when the user goes back to the section -->
+  <section class="page-mapping">
+    <div class="section-content row">
+      <div class="source-column">
+        <form class="form-inline">
+          <div class="row">
+            <label class="col-xs-2 form-control-static text-right">{{ 'PLGN_MIG_SOURCE' | translate }}</label>
+
+            <div class="col-xs-7">
+              <select class="form-control"
+                      ng-model="ctrl.source.key"
+                      ng-change="ctrl.updateProcDef('source')"
+                      ng-options="procDef.key as (procDef.name || procDef.key) for procDef in ctrl.availableProcessDefinitions | orderBy:'key'">
+                <option value="">{{ 'PLGN_MIG_DEFINITION' | translate }}</option>
+              </select>
+            </div>
+
+            <div class="col-xs-3">
+              <select class="form-control"
+                      ng-disabled="!ctrl.source.key"
+                      ng-model="ctrl.source.version"
+                      ng-change="ctrl.updateVersion('source')"
+                      ng-options="procDef.version as procDef.version for procDef in ctrl.source.availableDefinitions">
+                <option value="">{{ 'PLGN_MIG_VERSION' | translate }}</option>
+              </select>
+            </div>
+          </div>
+        </form>
+
+        <div cam-widget-bpmn-viewer
+             diagram-data='ctrl.source.diagramXml'
+             ng-if='ctrl.source.diagramXml'
+             control='diagram.source'
+             on-mouse-enter='diagram.hover("source", element)'
+             on-mouse-leave='diagram.unhover("source", element)'
+             on-click='diagram.click("source", element)'
+             on-load='diagram.load("source")'></div>
+
+        <h4 class="text-center center-block"
+            ng-if="!ctrl.source.diagramXml">
+          {{ 'PLGN_MIG_SELECT_SOURCE_DEFINITION' | translate }}
+        </h4>
+
+        <div ng-if="mappingBadge.createModeActive"
+             class="mapping-create-overlay">
+        </div>
+      </div><!-- / .col-sm-6 -->
+
+      <div class="target-column">
+        <form class="form-inline">
+          <div class="row">
+            <label class="col-xs-2 form-control-static text-right">{{ 'PLGN_MIG_TARGET' | translate }}</label>
+
+            <div class="col-xs-7">
+              <select class="form-control"
+                      ng-disabled="!ctrl.source.key"
+                      ng-model="ctrl.target.key"
+                      ng-change="ctrl.updateProcDef('target')"
+                      ng-options="procDef.key as (procDef.name || procDef.key) for procDef in ctrl.availableProcessDefinitions | orderBy:'key'">
+                <option value="">{{ 'PLGN_MIG_DEFINITION' | translate }}</option>
+              </select>
+            </div>
+
+            <div class="col-xs-3">
+              <select class="form-control"
+                      ng-disabled="!ctrl.source.key || !ctrl.target.key"
+                      ng-model="ctrl.target.version"
+                      ng-change="ctrl.updateVersion('target')"
+                      ng-options="procDef.version as procDef.version for procDef in ctrl.target.availableDefinitions">
+                <option value="">{{ 'PLGN_MIG_VERSION' | translate }}</option>
+              </select>
+            </div>
+          </div>
+        </form>
+
+        <div cam-widget-bpmn-viewer
+             diagram-data='ctrl.target.diagramXml'
+             ng-if='ctrl.target.diagramXml'
+             control='diagram.target'
+             on-mouse-enter='diagram.hover("target", element)'
+             on-mouse-leave='diagram.unhover("target", element)'
+             on-click='diagram.click("target", element)'
+             on-load='diagram.load("target")'></div>
+
+        <h4 class="text-center center-block"
+            ng-if="!ctrl.target.diagramXml">
+          {{ 'PLGN_MIG_SELECT_TARGET_DEFINITION' | translate }}
+        </h4>
+      </div><!-- / .col-sm-6 -->
+    </div><!-- / .row -->
+
+
+    <footer class="row">
+      <div class="text-right col-xs-4 col-md-offset-4 col-md-2">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox"
+                   ng-model="diagramLink.linked" />
+            {{ 'PLGN_MIG_LINK_DIAGRAM' | translate }}
+          </label>
+        </div>
+      </div>
+
+      <div class="col-xs-4 col-md-2">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox"
+                   ng-model="arrows.showAny"
+                   ng-change="arrows.toggleAll()" />
+            {{ 'PLGN_MIG_SHOW_PLAN' | translate }}
+          </label>
+        </div>
+      </div>
+
+      <div class="col-xs-4 text-right">
+        <button ng-click="ctrl.activateTab('instances')"
+                class="btn btn-primary"
+                ng-disabled="!ctrl.hasValidPlan">
+          {{ 'PLGN_MIG_SELECT_INSTANCES' | translate }}
+        </button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- LIST OF AVAILABLE PROCESS INSTANCES -->
+  <section class="page-instances">
+    <div class="section-content row">
+      <div class="col-xs-12">
+        <div cam-widget-search
+             cam-widget-search-total="instancesCtrl.delegate.instancesCount"
+             cam-widget-search-valid-searches="instancesCtrl.delegate.search.searches"
+             cam-widget-search-translations="instancesCtrl.delegate.search.translations"
+             cam-widget-search-types="instancesCtrl.delegate.search.types"
+             cam-widget-search-operators="instancesCtrl.delegate.search.operators"
+             cam-widget-search-storage-group="'PI'"
+             cam-widget-search-mode="filter"
+        />
+        <div cam-widget-loader
+             loading-state="{{ instancesCtrl.delegate.loadingState }}"
+             text-empty="{{ 'PLGN_MIG_NO_INSTANCES' | translate }}">
+          <table class="process-instances cam-table">
+            <thead>
+              <tr>
+                <th class="migrate"
+                style="width: 50px;">
+                  <input type="checkbox"
+                         ng-model="instancesCtrl.delegate.selectAll"
+                         ng-change="instancesCtrl.delegate.toggleAll()"/></th>
+                <th class="instance-id uuid">{{ 'PLGN_MIG_ID' | translate }}</th>
+                <th class="business-key">{{ 'PLGN_MIG_BUSINESS_KEY' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="processInstance in instancesCtrl.delegate.instances"
+                  ng-class="{selected: processInstance.selected}">
+                <td class="migrate">
+                  <input type="checkbox"
+                         ng-model="processInstance.selected"
+                         ng-change="instancesCtrl.delegate.updateSelectedInstances()"/>
+                </td>
+
+                <td class="instance-id uuid">
+                  <a ng-href="#/process-instance/{{ processInstance.id }}"
+                     title="{{ processInstance.id }}"
+                     target="_blank">
+                    {{ processInstance.id }}
+                  </a>
+                </td>
+
+                <td class="business-key">
+                  {{ processInstance.businessKey }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <pagination ng-if="instancesCtrl.delegate.instancesCount > instancesCtrl.delegate.pageSize"
+                        class="pagination-sm"
+
+                        page="instancesCtrl.delegate.currentPage"
+                        ng-model="instancesCtrl.delegate.currentPage"
+                        ng-change="instancesCtrl.updatePage()"
+
+                        total-items="instancesCtrl.delegate.instancesCount"
+                        items-per-page="instancesCtrl.delegate.pageSize"
+
+                        max-size="7"
+                        boundary-links="true"></pagination>
+        </div>
+      </div>
+    </div>
+
+    <footer class="row">
+      <div class="col-xs-2">
+        <button ng-click="ctrl.activateTab('mapping')"
+                class="btn btn-default">{{ 'PLGN_MIG_BACK' | translate }}</button>
+      </div>
+
+      <div class="col-xs-10 text-right">
+        <button ng-click="ctrl.activateTab('confirm')"
+                class="btn btn-primary"
+                ng-disabled="!ctrl.hasValidPlan || instancesCtrl.delegate.instancesCount === 0">
+            <span ng-if="instancesCtrl.delegate.selectedInstances.length > 0">{{ 'PLGN_MIG_MIGRATE_SELECTED_INSTANCES' | translate:{instancesCount: instancesCtrl.delegate.selectedInstances.length} }}</span>
+            <span ng-if="instancesCtrl.delegate.selectedInstances.length === 0">{{ 'PLGN_MIG_MIGRATE_ALL_INSTANCES' | translate:{instancesCount: instancesCtrl.delegate.instancesCount} }}</span>
+        </button>
+      </div>
+    </footer>
+  </section>
+
+
+  <!-- CONFIRMATION PAGE -->
+  <section class="page-confirm">
+    <div class="section-content row">
+      <div class="help-block col-xs-12 col-md-8 col-md-offset-2 text-center">
+        {{ 'PLGN_MIG_PLAYING' | translate }}<span title="fire" class="glyphicon glyphicon-fire"></span>.
+        {{ 'PLGN_MIG_REVIEW' | translate }}
+      </div>
+
+      <form class="col-xs-12 migration-options">
+        <div class="h3">Options</div>
+
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"
+                       ng-model="confirmCtrl.async" />
+                {{ 'PLGN_MIG_ASYNC' | translate }}
+              </label>
+              <div class="help-block">{{ 'PLGN_MIG_KEEP_CHECKED' | translate }}</div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div  ng-hide="confirmCtrl.skipCustomListeners.hidden"
+                  class="checkbox">
+              <label>
+                <input type="checkbox"
+                       ng-change="confirmCtrl.buildPayload()"
+                       ng-model="confirmCtrl.skipCustomListeners.default" />
+                {{ 'PLGN_MIG_SKIP_CUSTOM_LISTENERS' | translate }}
+              </label>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"
+                       ng-change="confirmCtrl.buildPayload()"
+                       ng-model="confirmCtrl.skipIoMappings" />
+                {{ 'PLGN_MIG_SKIP_IO_MAPPINGS' | translate }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="instance-number col-xs-12">
+        <div class="h3">{{ 'PLGN_MIG_SUMMARY' | translate }}</div>
+
+        <div class="row source-process">
+          <div class="col-xs-12 col-md-7 col-lg-6">
+            {{ 'PLGN_MIG_ABOUT_TO' | translate }}
+              <b ng-if="confirmCtrl.payload.processInstanceIds.length > 0">{{confirmCtrl.payload.processInstanceIds.length}}</b>
+              <b ng-if="!(confirmCtrl.payload.processInstanceIds.length > 0)">{{instancesCtrl.delegate.instancesCount}}</b>
+            {{ 'PLGN_MIG_INSTANCE' | translate }}<span ng-if="confirmCtrl.payload.processInstanceIds.length > 1 || (instancesCtrl.delegate.instancesCount > 1 && !(confirmCtrl.payload.processInstanceIds.length > 0))">{{ 'PLGN_MIG_S' | translate }}</span>
+            {{ 'PLGN_MIG_FROM_PROCESS_DEFINITION' | translate }}
+          </div>
+          <div class="col-xs-12 col-md-5 col-lg-6 process-definition-id">
+            {{confirmCtrl.payload.migrationPlan.sourceProcessDefinitionId}}
+          </div>
+        </div>
+
+        <div class="row target-process">
+          <div class="col-xs-12 col-md-7 col-lg-6">
+            {{ 'PLGN_MIG_TO_PROCESS_DEFINITION' | translate }}
+          </div>
+          <div class="col-xs-12 col-md-5 col-lg-6 process-definition-id">
+            {{confirmCtrl.payload.migrationPlan.targetProcessDefinitionId}}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-12">
+        <table class="activity-mapping cam-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLGN_MIG_SOURCE_ACTIVITY' | translate }}</th>
+              <th>{{ 'PLGN_MIG_TARGET_ACTIVITY' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="instruction in confirmCtrl.payload.migrationPlan.instructions">
+              <td>{{diagram.getNameForId('source', instruction.sourceActivityIds[0])}}</td>
+              <td>{{diagram.getNameForId('target', instruction.targetActivityIds[0])}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div cam-widget-debug
+           debugged="confirmCtrl.payload"
+           display-name="{{ 'PLGN_MIG_PAYLOAD' | translate }}"
+           cam-widget-debug-tooltip="{{ 'PLGN_MIG_SHOW_REQUEST_PAYLOAD' | translate }}"></div>
+    </div>
+
+    <footer class="row">
+      <div class="col-xs-2">
+        <button ng-click="ctrl.activateTab('instances')"
+                class="btn btn-default">
+          {{ 'PLGN_MIG_BACK' | translate }}
+        </button>
+      </div>
+
+      <div class="col-xs-10 text-right">
+        <button ng-click="ctrl.execute(confirmCtrl.async)"
+                class="btn btn-primary"
+                ng-disabled="!ctrl.hasValidPlan || (instancesCtrl.delegate.selectedInstances.length === 0 && instancesCtrl.delegate.instancesCount === 0)">
+          {{ 'PLGN_MIG_EXECUTE_MIGRATION' | translate }}
+        </button>
+      </div>
+    </footer>
+  </section>
+
+
+  <!-- PROGRESS PAGE -->
+  <section class="page-progress">
+    <div class="section-content row">
+      <div class="col-xs-12 text-center"
+           ng-if="executionCtrl.statusIcon">
+        <span class="glyphicon h1"
+              ng-class="executionCtrl.statusIcon"></span>
+      </div>
+      <div class="col-xs-12">
+        <div ng-if="!executionCtrl.hasError()" class="text-center h3">
+          {{executionCtrl.status}}
+          <br />
+          <a ng-href='#/batch?details={{executionCtrl.batchId}}&type=runtime' ng-if="executionCtrl.batchId">{{ 'PLGN_MIG_OBSERVE_PROGRESS' | translate }}</a>
+        </div>
+
+        <div ng-if="executionCtrl.hasError()">
+          <div ng-if="executionCtrl.getErrorType() === 'unknown'">
+            <h3>{{ 'PLGN_MIG_EXCEPTION' | translate }}</h3>
+            <pre>{{executionCtrl.getErrorMessage()}}</pre>
+          </div>
+          <div ng-if="executionCtrl.getErrorType() !== 'unknown'">
+            <div class="h3">{{ 'PLGN_MIG_CANNOT_EXECUTE' | translate }}
+              <span class="h4" ng-if="executionCtrl.getErrorType() === 'plan'">{{ 'PLGN_MIG_PLAN_INVALID' | translate }}</span>
+              <span class="h4" ng-if="executionCtrl.getErrorType() === 'instance'">{{ 'PLGN_MIG_FAILED' | translate }}<a ng-href="#/process-instance/{{executionCtrl.getFailedInstanceId()}}" target="_blank">{{executionCtrl.getFailedInstanceId()}}</a></span>
+            </div>
+            <div class="validation-errors">
+              <div class="h3">{{ 'PLGN_MIG_VALIDATION_ERRORS' | translate }}</div>
+
+              <table class="activity-mapping cam-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'PLGN_MIG_SOURCE_ACTIVITY' | translate }}</th>
+                    <th>{{ 'PLGN_MIG_MAPPED_ACTIVITY' | translate }}</th>
+                    <th>{{ 'PLGN_MIG_ERRORS' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="instruction in executionCtrl.getFailedInstructions()">
+                    <td>{{diagram.getNameForId('source', instruction.sourceActivity)}}</td>
+                    <td>{{diagram.getNameForId('target', instruction.targetActivity)}}</td>
+                    <td>{{instruction.error}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="row">
+
+    </footer>
+  </section>
+</div><!-- / .container-fluid -->

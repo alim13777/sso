@@ -1,0 +1,7 @@
+<resource name="test" authenticate="anonymous-all">
+    <resource name="login" authenticate="anonymous-all">
+        <method type="get">
+        <service name="pac4j.AuthenticationServices.perform#login"/>
+        </method>
+    </resource>
+</resource>

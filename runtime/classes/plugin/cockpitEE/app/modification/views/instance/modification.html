@@ -1,0 +1,274 @@
+<!-- EE # webapps/camunda-webapp/plugins/src/main/resources-plugin/modification/app/views/instance/modification.html -->
+<form class="process-instance-modification" name="modificationForm">
+  <div class="col-xs-12 help"
+       ng-if="!instructions.length && !selectedActivity">
+    {{ 'PLGN_MOD_WRENCH_BUTTON' | translate }}
+  </div>
+
+  <div class="col-xs-12 instructions">
+    <section ng-repeat="(instructionIndex, instruction) in instructions"
+             ng-class="instruction.operation"
+             class="row">
+      <div class="col-xs-1 meta">
+        <button class="btn btn-link"
+                ng-click="removeInstruction($index)"
+                tooltip="{{ 'PLGN_MOD_REMOVE_INSTRUCTION' | translate }}">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+      </div>
+
+      <div class="sorting-arrows col-xs-1">
+        <button class="btn btn-link"
+                ng-click="swapInstructions(instructionIndex, instructionIndex-1)"
+                ng-class="{'btn-hidden': instructionIndex === 0}"
+                tooltip="{{ 'PLGN_MOD_MOVE_UP' | translate }}"
+                tooltip-popup-delay="1000">
+          <span class="glyphicon glyphicon-menu-up"></span>
+        </button>
+
+        <button class="btn btn-link"
+                ng-click="swapInstructions(instructionIndex, instructionIndex+1)"
+                ng-class="{'btn-hidden': instructionIndex === instructions.length - 1}"
+                tooltip="{{ 'PLGN_MOD_MOVE_DOWN' | translate }}"
+                tooltip-popup-delay="1000">
+          <span class="glyphicon glyphicon-menu-down"></span>
+        </button>
+      </div>
+
+      <div class="col-xs-10 modification"
+           ng-class="{highlight: isHighlighted(instruction.id)}"
+           ng-mouseover="highlightInstruction(instruction)"
+           ng-mouseleave="unhighlightInstruction(instruction)">
+        <header class="row">
+          <div class="col-xs-3">
+            <select class="form-control"
+                    ng-model="instruction.operation"
+                    ng-change="refreshInstructions()">
+              <option value="startBefore"
+                      ng-selected="instruction.operation === 'startBefore'">
+                {{ 'PLGN_MOD_START_BEFORE' | translate }}
+              </option>
+              <option value="startAfter"
+                      ng-selected="instruction.operation === 'startAfter'">
+                {{ 'PLGN_MOD_START_AFTER' | translate }}
+              </option>
+              <option value="cancel"
+                      ng-selected="instruction.operation === 'cancel'"
+                      ng-if="instruction.instanceIds.length > 0">
+                {{ 'PLGN_MOD_CANCEL' | translate }}
+              </option>
+            </select>
+          </div>
+
+          <h4 class="col-xs-6 element-name">
+            {{ instruction.name }}
+
+            <a class="btn btn-link"
+               ng-click="expandInstruction(instructionIndex)"
+               ng-if="instruction.repeat > 1"
+               tooltip="{{ 'PLGN_MOD_SHOW_ALL' | translate }}"
+               tooltip-popup-delay="1000">
+              <span class="glyphicon glyphicon-menu-down"></span>
+            </a>
+
+            <span class="badge instructions-count"
+                  ng-if="instruction.repeat > 1">{{instruction.repeat}} &#215;</span>
+
+
+            <a class="btn btn-link"
+               ng-click="collapseInstruction(instructionIndex)"
+               ng-if="canCollapse(instructionIndex)"
+               tooltip="{{ 'PLGN_MOD_COLLAPSE' | translate }}"
+               tooltip-popup-delay="1000">
+              <span class="glyphicon glyphicon-menu-up"></span>
+            </a>
+
+            <span ng-if="instruction.operation === 'cancel' && instruction.instanceIds.length > 1">
+              <span class="badge"
+                    tooltip="{{ 'PLGN_MOD_AFFECTED_INSTANCES_OF' | translate:{ name: instruction.bpmnElement.name } }}"
+                    ng-if="instruction.instanceIds.length > 1 && instruction.instanceIds.length !== instructionSelectedInstancesCount(instruction) && instructionSelectedInstancesCount(instruction) !== 0">
+                {{ instructionSelectedInstancesCount(instruction) }} / {{ instruction.instanceIds.length }}
+              </span>
+              <span class="badge"
+                    tooltip="{{ 'PLGN_MOD_AFFECTED_INSTANCES_OF' | translate:{ name: instruction.bpmnElement.name } }}"
+                    ng-if="instruction.instanceIds.length > 1 && (instruction.instanceIds.length === instructionSelectedInstancesCount(instruction) || instructionSelectedInstancesCount(instruction) === 0)">
+                {{ 'PLGN_MOD_ALL_INSTANCES' | translate:{ instancesCount: instruction.instanceIds.length} }}
+              </span>
+            </span>
+          </h4>
+
+
+          <div class="col-xs-3 dropdown text-right instance-suggestions"
+               ng-if="instruction.operation === 'cancel' && filterSelectedInstances(instruction.instances).length">
+            <a href
+               class="dropdown-toggle">
+              {{ 'PLGN_MOD_SELECT_INSTANCES' | translate }}
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li ng-repeat="instanceId in filterSelectedInstances(instruction.instances)">
+                <a ng-click="instructionAddInstance(instructionIndex, instanceId)">
+                  {{ instanceId }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+
+          <div class="col-xs-3 dropdown text-right ancestor-selection"
+               ng-if="instruction.operation !== 'cancel' && instruction.ancestors.length > 1">
+            <a class="dropdown-toggle"
+               ng-if="!instruction.ancestorActivityInstanceId"
+               ng-click="openAncestorDropdown(instructionIndex)">
+              {{ 'PLGN_MOD_SELECT_ANCESTOR' | translate }}
+            </a>
+
+            <ul class="dropdown-menu ancestor-dropdown dropdown-menu-right">
+              <li ng-repeat="(ancestorId, ancestor) in instruction.ancestors">
+                <a ng-click="assignAncestor(instructionIndex, ancestor.id)">
+                  <div class="name">{{ancestor.name}} ({{ancestor.type}})</div>
+                  <div class="id">{{ ancestor.id }}</div>
+                  <div class="variables"
+                       ng-if="ancestor.variables.length > 0">
+                    <span>{{ 'PLGN_MOD_VARIABLES' | translate }}</span>
+                    <div ng-repeat="variable in ancestor.variables"
+                         class="row"
+                         cam-widget-variable
+                         cam-variable="variable"
+                         display="true"
+                         shown="nameValue"></div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-xs-offset-3 col-xs-9 dropdown ancestor-selection"
+               ng-if="instruction.operation !== 'cancel' && instruction.ancestors.length > 1 && instruction.ancestorActivityInstanceId">
+            {{ 'PLGN_MOD_ANCESTOR' | translate }}
+            <a class="dropdown-toggle">
+              {{instruction.ancestorActivityInstanceId}}
+            </a>
+
+            <ul class="dropdown-menu ancestor-dropdown">
+              <li ng-repeat="(ancestorId, ancestor) in instruction.ancestors">
+                <a ng-click="assignAncestor(instructionIndex, ancestor.id)">
+                  <div class="name">{{ancestor.name}} ({{ancestor.type}})</div>
+                  <div class="id">{{ ancestor.id }}</div>
+                  <div class="variables"
+                       ng-if="ancestor.variables.length > 0">
+                    <span>{{ 'PLGN_MOD_VARIABLES' | translate }}</span>
+                    <div ng-repeat="variable in ancestor.variables"
+                         class="row"
+                         cam-widget-variable
+                         cam-variable="variable"
+                         display="true"
+                         shown="nameValue"></div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </header>
+
+
+        <div class="activity-instances"
+             ng-if="instruction.operation === 'cancel' && instructionSelectedInstancesCount(instruction) > 0">
+          <div class="row header">
+            <div class="col-xs-1">
+            </div>
+            <div class="col-xs-11 col-xs-offset-1">
+              {{ 'PLGN_MOD_AFFECTED_INSTANCES' | translate }}
+
+              <a class="btn btn-link"
+                 ng-click="instructionSelectAllInstances(instructionIndex)">
+                {{ 'PLGN_MOD_ALL' | translate }}
+                <span class="glyphicon glyphicon-plus-sign"></span>
+              </a>
+            </div>
+          </div>
+
+          <div class="row body"
+               ng-repeat="(instanceId, selected) in instruction.instances"
+               ng-if="selected">
+            <div class="col-xs-1">
+              <a class="btn btn-link"
+                 ng-click="instruction.instances[instanceId] = false">
+                <span class="glyphicon glyphicon-remove"></span>
+              </a>
+            </div>
+
+            <div class="col-xs-11">
+              <span class="instance-id">{{ instanceId }}</span>
+              <a class="glyphicon"
+                 ng-class="{'glyphicon-eye-open': !info[instanceId].show, 'glyphicon-eye-close': info[instanceId].show}"
+                 tooltip="{{ 'PLGN_MOD_SHOW_HIDE' | translate }}"
+                 ng-click="instructionInstanceInfo(instructionIndex, instanceId)"></a>
+
+              <div cam-widget-loader
+                   ng-show="info[instanceId].show"
+                   loading-state="{{ info[instanceId].loadingState }}"
+                   text-error="{{ 'PLGN_MOD_COULD_NOT_GET' | translate }}"
+                   text-empty="{{ 'PLGN_MOD_NOT_CONTAIN' | translate }}"
+                   class="instance-variables">
+
+
+                <div ng-repeat="variable in info[instanceId].data"
+                     class="body"
+                     cam-widget-variable
+                     cam-variable="variable"
+                     display="true"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="variables"
+             ng-if="instructionHasVariables(instruction)">
+          <div class="header">
+            <button class="btn btn-link"
+                    ng-click="addInstructionVariable(instructionIndex)">
+              {{ 'PLGN_MOD_ADD_VARIABLE' | translate }}
+              <span class="glyphicon glyphicon-plus-sign"></span>
+            </button>
+          </div><!-- .header -->
+
+          <div class="row body"
+               ng-repeat="variable in instruction.variables">
+            <div class="col-xs-1 actions">
+              <button class="btn btn-link"
+                      ng-click="removeInstructionVariable(instructionIndex, $index)">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </div>
+
+            <div class="col-xs-11">
+              <div cam-widget-variable
+                   hidden-types="['Json', 'Xml']"
+                   cam-variable="variable"></div>
+            </div>
+          </div>
+        </div><!-- .variables -->
+      </div><!-- .modification -->
+    </section>
+  </div>
+
+  <div class="col-xs-12 actions"
+       ng-if="instructions.length">
+    <div class="row">
+      <div class="col-xs-3 col-xs-offset-9">
+        <button class="btn btn-primary"
+                ng-click="confirmModification()"
+                ng-disabled="modificationForm.$invalid">
+          {{ 'PLGN_MOD_APPLY' | translate }}
+        </button>
+      </div>
+    </div>
+  </div><!-- .actions -->
+
+  <div cam-widget-debug
+       display-name="{{ 'PLGN_MOD_REQUEST_PAYLOAD' | translate }}"
+       debugged="requestPayload"
+       cam-widget-debug-tooltip="{{ 'PLGN_MOD_SHOW_REQUEST_PAYLOAD' | translate }}"></div>
+</form>
+<!-- EE / webapps/camunda-webapp/plugins/src/main/resources-plugin/modification/app/views/instance/modification.html -->

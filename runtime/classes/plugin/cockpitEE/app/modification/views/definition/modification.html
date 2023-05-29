@@ -1,0 +1,87 @@
+<!-- EE # webapps/camunda-webapp/plugins/src/main/resources-plugin/modification/app/views/definition/modification.html -->
+<form class="process-instance-modification definition" name="modificationForm">
+  <div class="col-xs-12 help"
+       ng-if="!instructions.length && !selectedActivity">
+    {{ 'PLGN_MOD_WRENCH_BUTTON' | translate }}
+  </div>
+
+  <div class="col-xs-12 instructions">
+    <section ng-repeat="(instructionIndex, instruction) in instructions"
+             ng-class="instruction.operation"
+             class="row">
+      <div class="col-xs-1 meta">
+        <button class="btn btn-link"
+                ng-click="removeInstruction($index)"
+                tooltip="{{ 'PLGN_MOD_REMOVE_INSTRUCTION' | translate }}">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+      </div>
+
+      <div class="sorting-arrows col-xs-1">
+        <button class="btn btn-link"
+                ng-click="swapInstructions(instructionIndex, instructionIndex-1)"
+                ng-class="{'btn-hidden': instructionIndex === 0}"
+                tooltip="{{ 'PLGN_MOD_MOVE_UP' | translate }}"
+                tooltip-popup-delay="1000">
+          <span class="glyphicon glyphicon-menu-up"></span>
+        </button>
+
+        <button class="btn btn-link"
+                ng-click="swapInstructions(instructionIndex, instructionIndex+1)"
+                ng-class="{'btn-hidden': instructionIndex === instructions.length - 1}"
+                tooltip="{{ 'PLGN_MOD_MOVE_DOWN' | translate }}"
+                tooltip-popup-delay="1000">
+          <span class="glyphicon glyphicon-menu-down"></span>
+        </button>
+      </div>
+
+      <div class="col-xs-10 modification"
+           ng-class="{highlight: isHighlighted(instruction.id)}"
+           ng-mouseover="highlightInstruction(instruction)"
+           ng-mouseleave="unhighlightInstruction(instruction)">
+        <header class="row">
+          <div class="col-xs-3">
+            <select class="form-control"
+                    ng-model="instruction.operation">
+              <option value="startBefore"
+                      ng-selected="instruction.operation === 'startBefore'">
+                {{ 'PLGN_MOD_START_BEFORE' | translate }}
+              </option>
+              <option value="startAfter"
+                      ng-selected="instruction.operation === 'startAfter'">
+                {{ 'PLGN_MOD_START_AFTER' | translate }}
+              </option>
+              <option value="cancel"
+                      ng-selected="instruction.operation === 'cancel'">
+                {{ 'PLGN_MOD_CANCEL' | translate }}
+              </option>
+            </select>
+          </div>
+
+          <h4 class="col-xs-6 element-name">
+            {{ instruction.name }}
+          </h4>
+        </header>
+      </div><!-- .modification -->
+    </section>
+  </div>
+
+  <div class="col-xs-12 actions"
+       ng-if="instructions.length">
+     <div class="row">
+         <div class="col-xs-3 col-xs-offset-9">
+           <button class="btn btn-primary"
+                   ng-click="selectInstances()"
+                   ng-disabled="modificationForm.$invalid">
+             {{ 'PLGN_MOD_SELECT_INSTANCES' | translate }}
+           </button>
+         </div>
+      </div>
+    </div><!-- .actions -->
+    <div cam-widget-debug
+         display-name="{{ 'PLGN_MOD_REQUEST_PAYLOAD' | translate }}"
+         debugged="requestPayload"
+         cam-widget-debug-tooltip="{{ 'PLGN_MOD_SHOW_REQUEST_PAYLOAD' | translate }}"></div>
+</form>
+
+<!-- EE / webapps/camunda-webapp/plugins/src/main/resources-plugin/modification/app/views/definition/modification.html -->

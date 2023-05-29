@@ -1,0 +1,6 @@
+/moqui.war
+/node_modules/
+/runtime/txlog/
+/runtime/log/
+/runtime/elasticsearch/
+/runtime/db/

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-2.1.xsd"
+        require-authentication="false">
+    <transition name="callback" method="get" read-only="true">
+        <service-call name="pac4j.AuthenticationServices.perform#Callback"/>
+        <default-response type="screen-last"/>
+    </transition>
+    <transition name="logout">
+        <actions>
+            <service-call name="pac4j.AuthenticationServices.perform#Logout" />
+        </actions>
+        <default-response type="none"/>
+    </transition>
+
+    <transition name="getApiKey" require-session-token="false">
+        <service-call name="pac4j.AuthenticationServices.get#ApiKey" />
+        <default-response type="none" />
+    </transition>
+
+    <transition name="revokeApiKey" require-session-token="false">
+        <service-call name="pac4j.AuthenticationServices.revoke#ApiKey" />
+        <default-response type="none" />
+    </transition>
+
+    <transition name="getRealmConfig" method="get" require-session-token="false">
+        <actions>
+            <service-call name="pac4j.AuthenticationServices.get#OidcRealmConfiguration" out-map="config" />
+            <script>ec.web.sendJsonResponse(config)</script>
+        </actions>
+        <default-response type="none" />
+    </transition>
+
+    <subscreens default-item="Login">
+        <subscreens-item name="Local" location="component://webroot/screen/webroot/Login.xml" />
+    </subscreens>
+    <widgets>
+        <subscreens-active />
+    </widgets>
+</screen>

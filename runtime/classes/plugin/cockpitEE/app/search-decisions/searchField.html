@@ -1,0 +1,120 @@
+<section class="decision-instances-search">
+  <!-- EE # cockpit/search-decisions/app/views/searchField.html -->
+  <div class="inner">
+    <header>
+      <h1 class="section-title">{{ 'PLGN_SEDE_DEC_INSTANCES' | translate }}</h1>
+    </header>
+
+    <div cam-searchable-area
+         config="searchConfig"
+         on-search-change="queryCallback(query, pages)"
+         array-types="arrayTypes"
+         loading-state="loadingState"
+         text-empty="{{ 'PLGN_SEDE_NOT_FOUND' | translate }}"
+         storage-group="'DI'">
+
+      <div class="row">
+        <div class="controls-container col-xs-4 col-xs-offset-8 col-md-2 col-md-offset-10 text-right">
+          <div ng-if="(decisionInstances.length || incidents.length)"
+               class="search-results-sorting dropdown">
+            <button class="btn btn-default dropdown-toggle"
+                    ng-disabled="!availableColumns.length">
+              {{ 'PLGN_SEDE_ADD_COLUMN' | translate }}
+              <span class="glyphicon glyphicon-plus-sign"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li ng-repeat="column in availableColumns"
+                  ng-class="column">
+                <a ng-click="addColumn(column)">{{ columnLabel(column) }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <table ng-if="decisionInstances.length"
+             class="search-results cam-table">
+        <thead>
+        <tr>
+          <th class="decision-instance uuid">
+            <span class="column-label">{{ 'PLGN_SEDE_DECISION_INSTANCE_ID' | translate }}</span>
+          </th>
+
+          <th class="evaluation-time">
+            <span class="column-label">{{ 'PLGN_SEDE_EVALUATION_TIME' | translate }}</span>
+            <a ng-click="changeOrder('evaluationTime')">
+            <span class="glyphicon"
+                  ng-class="orderClass('evaluationTime')"></span>
+            </a>
+          </th>
+
+          <!--
+          <th class="decision-definition uuid">
+            <span class="column-label">Decision Definition ID</span>
+          </th>
+          -->
+
+          <th ng-repeat="column in shownColumns"
+              ng-class="column">
+            <a ng-click="removeColumn(column)">
+              <span class="glyphicon glyphicon-remove-sign"></span>
+            </a>
+
+            <span class="column-label">{{ columnLabel(column) }}</span>
+
+            <a ng-if="isSortableColumn(column)"
+               ng-click="changeOrder(column)">
+            <span class="glyphicon"
+                  ng-class="orderClass(column)"></span>
+            </a>
+          </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="(index, decisionInstance) in decisionInstances">
+          <td class="decision-instance uuid"
+              cam-widget-clipboard="decisionInstance.id">
+            <a href="#/decision-instance/{{ decisionInstance.id }}/history"
+               title="{{ decisionInstance.id }}">
+              {{ decisionInstance.id }}
+            </a>
+          </td>
+
+          <td class="evaluation-time"
+              cam-widget-clipboard="decisionInstance.evaluationTime">
+            {{ decisionInstance.evaluationTime | camDate }}
+          </td>
+
+          <!--
+          <td class="decision-instance uuid"
+              cam-widget-clipboard="decisionInstance.decisionDefinitionId">
+            <a href="#/decision-definition/{{ decisionInstance.decisionDefinitionId }}/history"
+               title="{{ decisionInstance.decisionDefinitionId }}">
+              {{ decisionInstance.decisionDefinitionId }}
+            </a>
+          </td>
+          -->
+
+          <!-- pass 1 for clipboard support -->
+          <td ng-repeat="column in shownColumns"
+              ng-if="decisionInstance[column]"
+              ng-class="column"
+              cam-widget-clipboard="decisionInstance[column]">
+            <span ng-bind-html="columnValue(column, index)"></span>
+          </td>
+
+          <!-- pass 2 no value -->
+          <td ng-repeat="column in shownColumns"
+              ng-if="!decisionInstance[column]"
+              ng-class="column">
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+    <!-- EE / cockpit/search-decisions/app/views/searchField.html -->
+</section>
